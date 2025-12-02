@@ -29,19 +29,6 @@ public class SolucionDos {
         filosofo3.start();
         filosofo4.start();
         filosofo5.start();
-
-        // for (int i = 0; i < 100; i++) {
-        // if (i % 5 == 0) {
-        // System.out.println("\n");
-        // System.out.println("Filosofo 2 está " + filosofo2.getState());
-        // System.out.println("Filosofo 4 está " + filosofo4.getState());
-        // System.out.println("Filosofo 5 está " + filosofo5.getState());
-        // System.out.println("\n");
-        // }
-        // if (i == 99)
-        // i = 0;
-        // }
-
     }
 }
 
@@ -73,44 +60,15 @@ class Filosofo implements Runnable {
     }
 
     private void getCubiertos() {
-        /*
-         *  Filósofo  Cubierto1   Cubierto2
-         *     4          2           3
-         * 
-         *     5          3           4
-         * 
-         * Supongamos que ambos despiertan tras un notifyAll():
-         * 
-         * Filósofo 4 entra en el synchronized(lock) y aún no ha marcado cubierto 2 como
-         * ocupado.
-         * 
-         * Filósofo 5 entra inmediatamente antes de que 4 marque el cubierto 3, y ve que
-         * su cubierto 3 está libre.
-         * 
-         * Resultado: ambos terminan marcando los cubiertos y comen a la vez, aunque
-         * comparten el 3.
-         * 
-         * Solución: Math.min / Math.max -> Ahora todos los filósofos adquieren primero el cubierto de menor índice y luego el de mayor índice
-         * 
-         * Filósofo 4 entra y marca el cubierto 2; Simultáneamente, el 5 entra y marca el cubierto 3
-         * 
-         * Filósofo 4 intenta marcar el cubierto 3 pero no puede (ya lo ha marcado el 5);
-         * Filósofo 5 marca el cubierto 4
-         * 
-         * Resultado: Filósofo 5 come antes    
-         */
-        int minCubierto = Math.min(cubierto1, cubierto2);
-        int maxCubierto = Math.max(cubierto1, cubierto2);
-
         synchronized (SolucionDos.lock) {
-            while (SolucionDos.cubiertos[minCubierto] || SolucionDos.cubiertos[maxCubierto]) {
+            while (SolucionDos.cubiertos[cubierto1] || SolucionDos.cubiertos[cubierto2]) {
                 try {
                     SolucionDos.lock.wait();
                 } catch (InterruptedException e) {
                 }
             }
-            SolucionDos.cubiertos[minCubierto] = true;
-            SolucionDos.cubiertos[maxCubierto] = true;
+            SolucionDos.cubiertos[cubierto1] = true;
+            SolucionDos.cubiertos[cubierto2] = true;
         }
 
     }
