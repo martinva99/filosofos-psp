@@ -10,7 +10,7 @@ import java.util.Random;
  * 
  * @see Filosofo
  * @author Martín y Ayur
- * @version 2
+ * @version 3
  * @since 2025-11-27
  */
 public class SolucionDos {
@@ -33,8 +33,32 @@ public class SolucionDos {
 
     /**
      * <p>
-     * Método main donde se inicializan los filósofos e, inicialmente, se marcan
-     * todos los cubiertos como libres (false)
+     * Códigos de color blanco ANSI (por defecto) para la salida en consola.
+     * </p>
+     */
+    public static final String ANSI_RESET = "\u001B[0m";
+
+    /**
+     * <p>
+     * Códigos de color verde ANSI para la salida en consola.
+     * </p>
+     */
+    public static final String ANSI_GREEN = "\u001B[32m";
+
+    /**
+     * <p>
+     * Códigos de color azul ANSI para la salida en consola.
+     * </p>
+     */
+    public static final String ANSI_BLUE = "\u001B[34m";
+
+
+    /**
+     * <p>
+     * Método main donde se inicializan los filósofos, se marcan
+     * todos los cubiertos como libres (false) y, cuando los filósofos están
+     * esperando (WAITING), se ponen a pensar (se imprime en verde
+     * "pensando").
      * </p>
      * 
      * @param args
@@ -60,6 +84,33 @@ public class SolucionDos {
         filosofo3.start();
         filosofo4.start();
         filosofo5.start();
+
+        while (true) {
+            if(filosofo1.getState() == Thread.State.WAITING){
+                System.out.println(SolucionDos.ANSI_GREEN + "El filosofo 1 está pensando (WAITING)" + SolucionDos.ANSI_RESET);
+            }
+
+            if(filosofo2.getState() == Thread.State.WAITING){
+                System.out.println(SolucionDos.ANSI_GREEN + "El filosofo 2 está pensando (WAITING)" + SolucionDos.ANSI_RESET);
+            }
+
+            if(filosofo3.getState() == Thread.State.WAITING){
+                System.out.println(SolucionDos.ANSI_GREEN + "El filosofo 3 está pensando (WAITING)" + SolucionDos.ANSI_RESET);
+            }
+
+            if(filosofo4.getState() == Thread.State.WAITING){
+                System.out.println(SolucionDos.ANSI_GREEN + "El filosofo 4 está pensando (WAITING)" + SolucionDos.ANSI_RESET);
+            }
+
+            if(filosofo5.getState() == Thread.State.WAITING){
+                System.out.println(SolucionDos.ANSI_GREEN + "El filosofo 5 está pensando (WAITING)" + SolucionDos.ANSI_RESET);
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
 
@@ -74,14 +125,7 @@ public class SolucionDos {
  * 
  */
 class Filosofo implements Runnable {
-    /**
-     * Sus atributos son:
-     * <ul>
-     * <li>String nombre</li>
-     * <li>Random r (randomiza el tiempo de comer/pensar)</li>
-     * <li>int cubierto1, cubierto2</li>
-     * </ul>
-     */
+    
     private final String nombre;
     private final Random r = new Random();
     private final int cubierto1, cubierto2;
@@ -100,7 +144,7 @@ class Filosofo implements Runnable {
      * <ol>
      * <li>Intentan coger los cubiertos (si no pueden se quedan en estado
      * <b>WAITING</b>)</li>
-     * <li>Comen</li>
+     * <li>Comen (se imprime en azul "comiendo")</li>
      * <li>Dejan los cubiertos</li>
      * <li>Piensan</li>
      * </ol>
@@ -110,7 +154,7 @@ class Filosofo implements Runnable {
         while (true) {
             try {
                 getCubiertos();
-                System.out.println(">>Filosofo " + nombre + " está comiendo");
+                System.out.println(SolucionDos.ANSI_BLUE + ">>Filósofo " + nombre + " está comiendo" + SolucionDos.ANSI_RESET);
                 Thread.sleep(r.nextInt(4000) + 1000);
                 System.out.println("Filosofo " + nombre + " ha terminado de comer");
                 soltarCubiertos();
@@ -145,7 +189,7 @@ class Filosofo implements Runnable {
      * Método llamado por los filósofos para intentar liberar los cubiertos
      * </p>
      */
-    private synchronized void soltarCubiertos() {
+    private void soltarCubiertos() {
         synchronized (SolucionDos.lock) {
             SolucionDos.cubiertos[cubierto1] = false;
             SolucionDos.cubiertos[cubierto2] = false;
