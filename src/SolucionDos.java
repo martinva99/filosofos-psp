@@ -2,12 +2,43 @@ package src;
 
 import java.util.Random;
 
+/**
+ * <p>
+ * Clase que contiene una <b>segunda solución</b> alternativa al problema de los
+ * filósofos.
+ * </p>
+ * 
+ * @see Filosofo
+ * @author Martín y Ayur
+ * @version 2
+ * @since 2025-11-27
+ */
 public class SolucionDos {
+    /**
+     * <p>
+     * Array de booleanos que representan los cubiertos.
+     * </p>
+     * Si su valor es <i>true</i>, están ocupados por otro filósofo
+     */
     public static boolean[] cubiertos = new boolean[5];
 
-    // Este es el objeto que van a ir bloqueando los filósofos para controlar el flujo de la app
+    /**
+     * <p>
+     * Este es el objeto que van a ir bloqueando los filósofos para controlar el
+     * flujo de la app
+     * </p>
+     * Lo usan los métodos marcados con <i>synchronized</i>
+     */
     public static final Object lock = new Object();
 
+    /**
+     * <p>
+     * Método main donde se inicializan los filósofos e, inicialmente, se marcan
+     * todos los cubiertos como libres (false)
+     * </p>
+     * 
+     * @param args
+     */
     public static void main(String[] args) {
 
         for (boolean c : cubiertos) {
@@ -29,23 +60,28 @@ public class SolucionDos {
         filosofo3.start();
         filosofo4.start();
         filosofo5.start();
-
-        // for (int i = 0; i < 100; i++) {
-        // if (i % 5 == 0) {
-        // System.out.println("\n");
-        // System.out.println("Filosofo 2 está " + filosofo2.getState());
-        // System.out.println("Filosofo 4 está " + filosofo4.getState());
-        // System.out.println("Filosofo 5 está " + filosofo5.getState());
-        // System.out.println("\n");
-        // }
-        // if (i == 99)
-        // i = 0;
-        // }
-
     }
 }
 
+/**
+ * <p>
+ * Clase <b>Filósofo</b> que implementa Runnable (son hilos) y pertenece a
+ * <b>{@link SolucionDos}</b>
+ * </p>
+ * 
+ * @see SolucionDos
+ * 
+ * 
+ */
 class Filosofo implements Runnable {
+    /**
+     * Sus atributos son:
+     * <ul>
+     * <li>String nombre</li>
+     * <li>Random r (randomiza el tiempo de comer/pensar)</li>
+     * <li>int cubierto1, cubierto2</li>
+     * </ul>
+     */
     private final String nombre;
     private final Random r = new Random();
     private final int cubierto1, cubierto2;
@@ -56,6 +92,19 @@ class Filosofo implements Runnable {
         this.cubierto2 = c2;
     }
 
+    /**
+     * <p>
+     * Método que se ejecuta al iniciar los hilos.
+     * </p>
+     * Controla el flujo de vida de los filósofos:
+     * <ol>
+     * <li>Intentan coger los cubiertos (si no pueden se quedan en estado
+     * <b>WAITING</b>)</li>
+     * <li>Comen</li>
+     * <li>Dejan los cubiertos</li>
+     * <li>Piensan</li>
+     * </ol>
+     */
     @Override
     public void run() {
         while (true) {
@@ -72,49 +121,30 @@ class Filosofo implements Runnable {
         }
     }
 
+    /**
+     * <p>
+     * Método llamado por los filósofos para intentar obtener los cubiertos
+     * </p>
+     */
     private void getCubiertos() {
-        /*
-         *  Filósofo  Cubierto1   Cubierto2
-         *     4          2           3
-         * 
-         *     5          3           4
-         * 
-         * Supongamos que ambos despiertan tras un notifyAll():
-         * 
-         * Filósofo 4 entra en el synchronized(lock) y aún no ha marcado cubierto 2 como
-         * ocupado.
-         * 
-         * Filósofo 5 entra inmediatamente antes de que 4 marque el cubierto 3, y ve que
-         * su cubierto 3 está libre.
-         * 
-         * Resultado: ambos terminan marcando los cubiertos y comen a la vez, aunque
-         * comparten el 3.
-         * 
-         * Solución: Math.min / Math.max -> Ahora todos los filósofos adquieren primero el cubierto de menor índice y luego el de mayor índice
-         * 
-         * Filósofo 4 entra y marca el cubierto 2; Simultáneamente, el 5 entra y marca el cubierto 3
-         * 
-         * Filósofo 4 intenta marcar el cubierto 3 pero no puede (ya lo ha marcado el 5);
-         * Filósofo 5 marca el cubierto 4
-         * 
-         * Resultado: Filósofo 5 come antes    
-         */
-        int minCubierto = Math.min(cubierto1, cubierto2);
-        int maxCubierto = Math.max(cubierto1, cubierto2);
-
         synchronized (SolucionDos.lock) {
-            while (SolucionDos.cubiertos[minCubierto] || SolucionDos.cubiertos[maxCubierto]) {
+            while (SolucionDos.cubiertos[cubierto1] || SolucionDos.cubiertos[cubierto2]) {
                 try {
                     SolucionDos.lock.wait();
                 } catch (InterruptedException e) {
                 }
             }
-            SolucionDos.cubiertos[minCubierto] = true;
-            SolucionDos.cubiertos[maxCubierto] = true;
+            SolucionDos.cubiertos[cubierto1] = true;
+            SolucionDos.cubiertos[cubierto2] = true;
         }
 
     }
 
+    /**
+     * <p>
+     * Método llamado por los filósofos para intentar liberar los cubiertos
+     * </p>
+     */
     private synchronized void soltarCubiertos() {
         synchronized (SolucionDos.lock) {
             SolucionDos.cubiertos[cubierto1] = false;
@@ -123,6 +153,11 @@ class Filosofo implements Runnable {
         }
     }
 
+    /**
+     * Método usado para realizar las pruebas
+     * 
+     * @return String
+     */
     public String getNombre() {
         return nombre;
     }
