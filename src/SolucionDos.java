@@ -145,7 +145,7 @@ class Filosofo implements Runnable {
      * Método llamado por los filósofos para intentar liberar los cubiertos
      * </p>
      */
-    private synchronized void soltarCubiertos() {
+    private void soltarCubiertos() {
         synchronized (SolucionDos.lock) {
             SolucionDos.cubiertos[cubierto1] = false;
             SolucionDos.cubiertos[cubierto2] = false;
