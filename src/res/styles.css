@@ -1,0 +1,6 @@
+#lblF1, #lblF2, #lblF3, #lblF4, #lblF5{
+    -fx-background-color: rgba(96, 134, 227, 0.7);
+    -fx-background-radius: 50px;
+    -fx-padding: 5px;
+    -fx-pref-width: 80px;
+}
